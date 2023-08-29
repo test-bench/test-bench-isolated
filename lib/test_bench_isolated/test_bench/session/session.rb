@@ -68,7 +68,17 @@ module TestBenchIsolated
       end
   
       def passed?
-        asserted? && !failed? && !skipped?
+        if failed?
+          false
+        elsif require_passing_test?
+          asserted? && !skipped?
+        else
+          true
+        end
+      end
+  
+      def require_passing_test?
+        Defaults.require_passing_tests
       end
   
       def fixture(name, &block)
@@ -237,6 +247,12 @@ module TestBenchIsolated
   
       def self.no_assertion_message
         "Test didn't perform an assertion"
+      end
+  
+      module Defaults
+        def self.require_passing_tests
+          ENV.fetch('TEST_BENCH_REQUIRE_PASSING_TEST', 'on') == 'on'
+        end
       end
     end
   end

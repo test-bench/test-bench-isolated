@@ -162,7 +162,7 @@ module TestBenchIsolated
   
             env['TEST_BENCH_EXCLUDE_FILE_PATTERN'] = exclude_pattern_text
   
-          when '-f', '--only-failure', '--no-only-failure'
+          when '-f', '-F', '--only-failure', '--no-only-failure'
             if not negated?(switch)
               only_failure_text = 'on'
             else
@@ -170,6 +170,15 @@ module TestBenchIsolated
             end
   
             env['TEST_BENCH_ONLY_FAILURE'] = only_failure_text
+  
+          when '-p', '-P', '--require-passing-tests', '--no-require-passing-tests'
+            if not negated?(switch)
+              require_passing_tests = 'on'
+            else
+              require_passing_tests = 'off'
+            end
+  
+            env['TEST_BENCH_REQUIRE_PASSING_TESTS'] = require_passing_tests
   
           when '-o', '--output-styling'
             output_styling_text = switch_value(argument_index) do
@@ -238,7 +247,11 @@ module TestBenchIsolated
       end
   
       def negated?(switch)
-        switch.start_with?('--no-')
+        if switch.start_with?('--')
+          switch.start_with?('--no-')
+        else
+          /^-[A-Z]/.match?(switch)
+        end
       end
   
       def exit_code?
